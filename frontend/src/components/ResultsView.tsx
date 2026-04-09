@@ -24,19 +24,28 @@ function RowTable({
     <div>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-sm text-blue-600 hover:text-blue-800 underline"
+        className="flex items-center gap-1.5 text-sm text-blue font-medium hover:underline transition-colors"
       >
+        <svg
+          className={`w-4 h-4 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
         {expanded ? `Hide ${label}` : `Show ${label} (${rows.length})`}
       </button>
       {expanded && (
-        <div className="mt-2 max-h-64 overflow-auto border border-gray-200 rounded-lg">
+        <div className="mt-3 max-h-64 overflow-auto rounded-2xl bg-bg-secondary">
           <table className="w-full text-xs">
-            <thead className="bg-gray-50 sticky top-0">
+            <thead className="sticky top-0 bg-bg-secondary">
               <tr>
                 {columns.map((col) => (
                   <th
                     key={col}
-                    className="px-3 py-2 text-left font-medium text-gray-600 border-b"
+                    className="px-4 py-2.5 text-left font-semibold text-text-tertiary border-b border-border-light"
                   >
                     {col}
                   </th>
@@ -45,9 +54,9 @@ function RowTable({
             </thead>
             <tbody>
               {rows.map((row, i) => (
-                <tr key={i} className="border-b border-gray-100">
+                <tr key={i} className="border-b border-border-light/60 last:border-0">
                   {columns.map((col) => (
-                    <td key={col} className="px-3 py-1.5 text-gray-700">
+                    <td key={col} className="px-4 py-2 text-text-secondary whitespace-nowrap">
                       {row[col]}
                     </td>
                   ))}
@@ -69,41 +78,48 @@ export function ResultsView({ result, franchisor, onReset }: ResultsViewProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-800">Results</h2>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-green-700">{result.added}</p>
-          <p className="text-sm text-green-600">New leads added</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold text-text-primary text-center">
+        Results
+      </h2>
+
+      {/* Metric cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-green-light rounded-2xl p-5 text-center animate-in delay-1">
+          <p className="text-3xl font-bold text-green">{result.added}</p>
+          <p className="text-xs font-medium text-text-tertiary mt-1">New leads</p>
         </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-yellow-700">
-            {result.duplicates}
-          </p>
-          <p className="text-sm text-yellow-600">Duplicates skipped</p>
+        <div className="bg-orange-light rounded-2xl p-5 text-center animate-in delay-2">
+          <p className="text-3xl font-bold text-orange">{result.duplicates}</p>
+          <p className="text-xs font-medium text-text-tertiary mt-1">Duplicates</p>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold text-red-700">{result.invalid}</p>
-          <p className="text-sm text-red-600">Invalid phones</p>
+        <div className="bg-red-light rounded-2xl p-5 text-center animate-in delay-3">
+          <p className="text-3xl font-bold text-red">{result.invalid}</p>
+          <p className="text-xs font-medium text-text-tertiary mt-1">Invalid</p>
         </div>
       </div>
 
-      <RowTable rows={result.duplicateRows} label="duplicate rows" />
-      <RowTable rows={result.invalidRows} label="invalid phone rows" />
+      {/* Detail tables */}
+      <div className="space-y-3">
+        <RowTable rows={result.duplicateRows} label="duplicate rows" />
+        <RowTable rows={result.invalidRows} label="invalid phone rows" />
+      </div>
 
+      {/* Actions */}
       {result.newRows.length > 0 && (
         <button
           onClick={handleDownload}
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="w-full py-3.5 px-6 bg-blue text-white text-base font-semibold rounded-[14px] transition-all duration-200 hover:bg-blue-hover active:scale-[0.98]"
         >
-          Download clean CSV ({result.newRows.length} rows)
+          Download Clean CSV ({result.newRows.length} rows)
         </button>
       )}
+
       <button
         onClick={onReset}
-        className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        className="w-full py-3 px-6 text-blue text-base font-medium rounded-[14px] transition-all duration-200 hover:bg-blue-light active:scale-[0.98]"
       >
-        Upload another file
+        Upload Another File
       </button>
     </div>
   )
