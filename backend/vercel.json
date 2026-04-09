@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "nest build && cp -r dist api-dist",
+  "buildCommand": "npx nest build",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api" }
   ]
