@@ -1,11 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DropZone } from '../components/DropZone'
 import { ColumnPicker } from '../components/ColumnPicker'
 import { FranchisorInput } from '../components/FranchisorInput'
+import { AccountPicker } from '../components/AccountPicker'
 import { ResultsView } from '../components/ResultsView'
 import { detectPhoneColumns } from '../lib/phoneDetector'
-import { deduplicateLeads, type DedupResult } from '../lib/api'
+import {
+  deduplicateLeads,
+  listAccounts,
+  createAccount,
+  type Account,
+  type DedupResult,
+} from '../lib/api'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -20,8 +27,31 @@ function HomePage() {
   const [phoneCandidates, setPhoneCandidates] = useState<string[]>([])
   const [selectedColumn, setSelectedColumn] = useState<string | null>(null)
   const [franchisor, setFranchisor] = useState('')
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [accountId, setAccountId] = useState<string | null>(null)
   const [result, setResult] = useState<DedupResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setAccountId(null)
+    setAccounts([])
+    if (!franchisor) return
+    let cancelled = false
+    listAccounts(franchisor)
+      .then((list) => {
+        if (!cancelled) setAccounts(list)
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setError(
+            e instanceof Error ? e.message : 'Failed to load accounts',
+          )
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [franchisor])
 
   const handleCsvParsed = (data: {
     headers: string[]
@@ -37,6 +67,16 @@ function HomePage() {
     setState('configure')
   }
 
+  const handleCreateAccount = async (name: string) => {
+    const created = await createAccount({ name, franchisor })
+    setAccounts((prev) =>
+      prev.some((a) => a.id === created.id)
+        ? prev
+        : [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
+    )
+    setAccountId(created.id)
+  }
+
   const handleProcess = async () => {
     if (!selectedColumn || !franchisor.trim()) return
     setState('processing')
@@ -44,6 +84,7 @@ function HomePage() {
     try {
       const res = await deduplicateLeads({
         franchisor: franchisor.trim(),
+        accountId,
         phoneColumn: selectedColumn,
         rows,
       })
@@ -62,6 +103,8 @@ function HomePage() {
     setPhoneCandidates([])
     setSelectedColumn(null)
     setFranchisor('')
+    setAccounts([])
+    setAccountId(null)
     setResult(null)
     setError(null)
   }
@@ -89,6 +132,14 @@ function HomePage() {
           />
 
           <FranchisorInput value={franchisor} onChange={setFranchisor} />
+
+          <AccountPicker
+            franchisor={franchisor}
+            accounts={accounts}
+            selected={accountId}
+            onSelect={setAccountId}
+            onCreate={handleCreateAccount}
+          />
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

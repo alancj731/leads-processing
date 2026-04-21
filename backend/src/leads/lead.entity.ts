@@ -8,6 +8,9 @@ export class Lead {
   @Column()
   franchisor!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'uuid', nullable: true })
+  account_id!: string | null;
+
+  @Column()
   phone_number!: string;
 }

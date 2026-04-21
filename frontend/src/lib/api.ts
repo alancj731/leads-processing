@@ -9,8 +9,15 @@ export interface DedupResult {
   invalidRows: Record<string, string>[]
 }
 
+export interface Account {
+  id: string
+  name: string
+  franchisor: string
+}
+
 export async function deduplicateLeads(payload: {
   franchisor: string
+  accountId: string | null
   phoneColumn: string
   rows: Record<string, string>[]
 }): Promise<DedupResult> {
@@ -22,5 +29,26 @@ export async function deduplicateLeads(payload: {
   if (!res.ok) {
     throw new Error(`Server error: ${res.status}`)
   }
+  return res.json()
+}
+
+export async function listAccounts(franchisor: string): Promise<Account[]> {
+  const res = await fetch(
+    `${API_BASE}/accounts?franchisor=${encodeURIComponent(franchisor)}`,
+  )
+  if (!res.ok) throw new Error(`Server error: ${res.status}`)
+  return res.json()
+}
+
+export async function createAccount(payload: {
+  name: string
+  franchisor: string
+}): Promise<Account> {
+  const res = await fetch(`${API_BASE}/accounts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error(`Server error: ${res.status}`)
   return res.json()
 }

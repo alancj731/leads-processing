@@ -13,16 +13,15 @@ export class LeadsService {
 
   async deduplicate(
     franchisor: string,
+    accountId: string | null,
     phoneColumn: string,
     rows: Record<string, string>[],
   ) {
-    // Parse all phones to E.164
     const parsed = rows.map((row) => ({
       row,
       e164: this.parseToE164(row[phoneColumn] ?? ''),
     }));
 
-    // Separate valid from invalid
     const invalidRows: Record<string, string>[] = [];
     const valid: { row: Record<string, string>; e164: string }[] = [];
     for (const p of parsed) {
@@ -33,7 +32,6 @@ export class LeadsService {
       }
     }
 
-    // Deduplicate within the CSV itself (keep first occurrence)
     const seenInCsv = new Set<string>();
     const csvDuplicateRows: Record<string, string>[] = [];
     const uniqueValid = valid.filter((p) => {
@@ -45,20 +43,22 @@ export class LeadsService {
       return true;
     });
 
-    // Batch check existing phones in DB (chunks of 500)
     const allE164 = uniqueValid.map((p) => p.e164);
     const existingSet = new Set<string>();
 
     for (let i = 0; i < allE164.length; i += 500) {
       const chunk = allE164.slice(i, i + 500);
+      const where =
+        accountId != null
+          ? { franchisor, account_id: accountId, phone_number: In(chunk) }
+          : { franchisor, phone_number: In(chunk) };
       const found = await this.leadRepo.find({
-        where: { phone_number: In(chunk) },
+        where,
         select: ['phone_number'],
       });
       found.forEach((f) => existingSet.add(f.phone_number));
     }
 
-    // Split into new vs duplicate
     const newRows: Record<string, string>[] = [];
     const dbDuplicateRows: Record<string, string>[] = [];
     const toInsert: Partial<Lead>[] = [];
@@ -68,11 +68,14 @@ export class LeadsService {
         dbDuplicateRows.push({ ...row, [phoneColumn]: e164 });
         continue;
       }
-      toInsert.push({ franchisor, phone_number: e164 });
+      toInsert.push({
+        franchisor,
+        account_id: accountId ?? null,
+        phone_number: e164,
+      });
       newRows.push({ ...row, [phoneColumn]: e164 });
     }
 
-    // Bulk insert new leads
     if (toInsert.length > 0) {
       await this.leadRepo
         .createQueryBuilder()

@@ -10,6 +10,7 @@ export class LeadsController {
   async deduplicate(@Body() dto: DedupLeadsDto) {
     return this.leadsService.deduplicate(
       dto.franchisor,
+      dto.accountId ?? null,
       dto.phoneColumn,
       dto.rows,
     );
