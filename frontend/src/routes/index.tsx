@@ -110,25 +110,42 @@ function HomePage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto py-12 px-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        Lead Deduplication
-      </h1>
+    <div className="max-w-xl mx-auto py-20 px-6">
+      {/* Header */}
+      <div className="text-center mb-12 animate-in">
+        <h1 className="text-[40px] font-semibold tracking-tight text-text-primary leading-tight">
+          Lead Dedup
+        </h1>
+        <p className="text-lg text-text-tertiary mt-2 font-light">
+          Upload. Deduplicate. Download.
+        </p>
+      </div>
 
-      {state === 'upload' && <DropZone onParsed={handleCsvParsed} />}
+      {/* Upload */}
+      {state === 'upload' && (
+        <div className="animate-in delay-1">
+          <DropZone onParsed={handleCsvParsed} />
+        </div>
+      )}
 
+      {/* Configure */}
       {state === 'configure' && (
-        <div className="space-y-6">
-          <p className="text-sm text-gray-600">
-            {rows.length} rows loaded from CSV
-          </p>
+        <div className="space-y-6 animate-in delay-1">
+          <div className="apple-card-flat px-5 py-3 flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green" />
+            <p className="text-sm text-text-secondary">
+              <span className="font-semibold text-text-primary">{rows.length} rows</span> loaded
+              <span className="mx-1.5 text-border">·</span>
+              <span className="font-semibold text-text-primary">{headers.length} columns</span> detected
+            </p>
+          </div>
 
           <ColumnPicker
             columns={phoneCandidates}
             allColumns={headers}
             rows={rows}
             selected={selectedColumn}
-            onSelect={setSelectedColumn}
+            onSelect={(col) => setSelectedColumn(col || null)}
           />
 
           <FranchisorInput value={franchisor} onChange={setFranchisor} />
@@ -146,33 +163,42 @@ function HomePage() {
           <button
             onClick={handleProcess}
             disabled={!selectedColumn || !franchisor.trim()}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3.5 px-6 bg-blue text-white text-base font-semibold rounded-[14px] transition-all duration-200 hover:bg-blue-hover active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             Process
           </button>
 
           <button
             onClick={handleReset}
-            className="w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="w-full py-3 px-6 text-blue text-base font-medium rounded-[14px] transition-all duration-200 hover:bg-blue-light active:scale-[0.98]"
           >
-            Start over
+            Start Over
           </button>
         </div>
       )}
 
+      {/* Processing */}
       {state === 'processing' && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600 mb-4" />
-          <p className="text-gray-600">Processing...</p>
+        <div className="text-center py-20 animate-in delay-1">
+          <div className="apple-spinner mx-auto mb-5" />
+          <p className="text-lg font-medium text-text-primary">
+            Processing
+          </p>
+          <p className="text-sm text-text-tertiary mt-1">
+            Deduplicating {rows.length} records...
+          </p>
         </div>
       )}
 
+      {/* Results */}
       {state === 'results' && result && (
-        <ResultsView
-          result={result}
-          franchisor={franchisor}
-          onReset={handleReset}
-        />
+        <div className="animate-in delay-1">
+          <ResultsView
+            result={result}
+            franchisor={franchisor}
+            onReset={handleReset}
+          />
+        </div>
       )}
     </div>
   )

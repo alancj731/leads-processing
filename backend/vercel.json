@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "buildCommand": "npx nest build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api" }
+  ]
+}

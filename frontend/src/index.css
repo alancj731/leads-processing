@@ -1,1 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f5f5f7;
+  --color-bg-tertiary: #fafafa;
+  --color-surface: #ffffff;
+  --color-border: #d2d2d7;
+  --color-border-light: #e8e8ed;
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-text-tertiary: #86868b;
+  --color-blue: #0071e3;
+  --color-blue-hover: #0077ed;
+  --color-blue-light: #e8f0fe;
+  --color-green: #34c759;
+  --color-green-light: #eefbf1;
+  --color-orange: #ff9500;
+  --color-orange-light: #fff8ee;
+  --color-red: #ff3b30;
+  --color-red-light: #fff0ef;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+/* ── Base ───────────────────────────────────────────── */
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Apple-style card ──────────────────────────────── */
+.apple-card {
+  background: var(--color-surface);
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.03),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 12px 40px rgba(0, 0, 0, 0.06);
+}
+
+.apple-card-flat {
+  background: var(--color-bg-secondary);
+  border-radius: 16px;
+}
+
+/* ── Smooth fade-in ────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-in {
+  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.delay-1 { animation-delay: 80ms; }
+.delay-2 { animation-delay: 160ms; }
+.delay-3 { animation-delay: 240ms; }
+.delay-4 { animation-delay: 320ms; }
+
+/* ── Gentle pulse ──────────────────────────────────── */
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+/* ── Apple spinner ─────────────────────────────────── */
+@keyframes apple-spin {
+  to { transform: rotate(360deg); }
+}
+.apple-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-light);
+  border-top-color: var(--color-text-primary);
+  border-radius: 50%;
+  animation: apple-spin 0.8s linear infinite;
+}
+
+/* ── Custom scrollbar ──────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ── Radio buttons ─────────────────────────────────── */
+input[type="radio"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+input[type="radio"]:checked {
+  border-color: var(--color-blue);
+  border-width: 6px;
+}
+
+/* ── Select dropdown ───────────────────────────────── */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%2386868b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}

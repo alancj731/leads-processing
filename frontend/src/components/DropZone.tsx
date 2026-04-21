@@ -66,10 +66,10 @@ export function DropZone({ onParsed }: DropZoneProps) {
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
       onClick={() => fileInputRef.current?.click()}
-      className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
+      className={`rounded-2xl p-14 text-center cursor-pointer transition-all duration-300 ${
         isDragging
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-300 hover:border-gray-400'
+          ? 'bg-blue-light scale-[1.01]'
+          : 'apple-card-flat hover:bg-[#ededf0]'
       }`}
     >
       <input
@@ -82,11 +82,39 @@ export function DropZone({ onParsed }: DropZoneProps) {
           if (file) handleFile(file)
         }}
       />
-      <div className="text-gray-500">
-        <p className="text-lg font-medium">Drop a CSV file here</p>
-        <p className="text-sm mt-1">or click to browse</p>
+
+      <div className="mb-4">
+        <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl transition-colors duration-300 ${
+          isDragging ? 'bg-blue' : 'bg-[#e2e2e7]'
+        }`}>
+          <svg
+            className={`w-7 h-7 transition-colors duration-300 ${
+              isDragging ? 'text-white' : 'text-text-secondary'
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={1.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+            />
+          </svg>
+        </div>
       </div>
-      {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
+
+      <p className="text-base font-semibold text-text-primary">
+        Drop a CSV file here
+      </p>
+      <p className="text-sm text-text-tertiary mt-1">
+        or click to browse
+      </p>
+
+      {error && (
+        <p className="text-sm text-red mt-4 font-medium">{error}</p>
+      )}
     </div>
   )
 }
