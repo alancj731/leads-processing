@@ -84,7 +84,13 @@ export function ResultsView({ result, franchisor, onReset }: ResultsViewProps) {
       </h2>
 
       {/* Metric cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div
+        className={`grid gap-3 ${
+          result.skipped > 0
+            ? 'grid-cols-2 md:grid-cols-4'
+            : 'grid-cols-3'
+        }`}
+      >
         <div className="bg-green-light rounded-2xl p-5 text-center animate-in delay-1">
           <p className="text-3xl font-bold text-green">{result.added}</p>
           <p className="text-xs font-medium text-text-tertiary mt-1">New leads</p>
@@ -97,12 +103,19 @@ export function ResultsView({ result, franchisor, onReset }: ResultsViewProps) {
           <p className="text-3xl font-bold text-red">{result.invalid}</p>
           <p className="text-xs font-medium text-text-tertiary mt-1">Invalid</p>
         </div>
+        {result.skipped > 0 && (
+          <div className="bg-blue-light rounded-2xl p-5 text-center animate-in delay-4">
+            <p className="text-3xl font-bold text-blue">{result.skipped}</p>
+            <p className="text-xs font-medium text-text-tertiary mt-1">Over limit</p>
+          </div>
+        )}
       </div>
 
       {/* Detail tables */}
       <div className="space-y-3">
         <RowTable rows={result.duplicateRows} label="duplicate rows" />
         <RowTable rows={result.invalidRows} label="invalid phone rows" />
+        <RowTable rows={result.skippedRows} label="over-limit rows" />
       </div>
 
       {/* Actions */}

@@ -16,6 +16,7 @@ export class LeadsService {
     accountId: string | null,
     phoneColumn: string,
     rows: Record<string, string>[],
+    limit: number | null,
   ) {
     const parsed = rows.map((row) => ({
       row,
@@ -59,22 +60,30 @@ export class LeadsService {
       found.forEach((f) => existingSet.add(f.phone_number));
     }
 
-    const newRows: Record<string, string>[] = [];
+    const candidateNewRows: Record<string, string>[] = [];
     const dbDuplicateRows: Record<string, string>[] = [];
-    const toInsert: Partial<Lead>[] = [];
+    const candidateInsert: Partial<Lead>[] = [];
 
     for (const { row, e164 } of uniqueValid) {
       if (existingSet.has(e164)) {
         dbDuplicateRows.push({ ...row, [phoneColumn]: e164 });
         continue;
       }
-      toInsert.push({
+      candidateInsert.push({
         franchisor,
         account_id: accountId ?? null,
         phone_number: e164,
       });
-      newRows.push({ ...row, [phoneColumn]: e164 });
+      candidateNewRows.push({ ...row, [phoneColumn]: e164 });
     }
+
+    const cap =
+      limit != null && limit < candidateNewRows.length
+        ? limit
+        : candidateNewRows.length;
+    const newRows = candidateNewRows.slice(0, cap);
+    const toInsert = candidateInsert.slice(0, cap);
+    const skippedRows = candidateNewRows.slice(cap);
 
     if (toInsert.length > 0) {
       await this.leadRepo
@@ -91,9 +100,11 @@ export class LeadsService {
       added: newRows.length,
       duplicates: duplicateRows.length,
       invalid: invalidRows.length,
+      skipped: skippedRows.length,
       newRows,
       duplicateRows,
       invalidRows,
+      skippedRows,
     };
   }
 

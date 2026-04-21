@@ -29,6 +29,7 @@ function HomePage() {
   const [franchisor, setFranchisor] = useState('')
   const [accounts, setAccounts] = useState<Account[]>([])
   const [accountId, setAccountId] = useState<string | null>(null)
+  const [uploadLimit, setUploadLimit] = useState('')
   const [result, setResult] = useState<DedupResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -79,6 +80,11 @@ function HomePage() {
 
   const handleProcess = async () => {
     if (!selectedColumn || !franchisor.trim()) return
+    const parsedLimit = uploadLimit.trim() === '' ? null : Number(uploadLimit)
+    if (parsedLimit != null && (!Number.isInteger(parsedLimit) || parsedLimit < 1)) {
+      setError('Upload limit must be a whole number ≥ 1')
+      return
+    }
     setState('processing')
     setError(null)
     try {
@@ -87,6 +93,7 @@ function HomePage() {
         accountId,
         phoneColumn: selectedColumn,
         rows,
+        limit: parsedLimit,
       })
       setResult(res)
       setState('results')
@@ -105,6 +112,7 @@ function HomePage() {
     setFranchisor('')
     setAccounts([])
     setAccountId(null)
+    setUploadLimit('')
     setResult(null)
     setError(null)
   }
@@ -157,6 +165,28 @@ function HomePage() {
             onSelect={setAccountId}
             onCreate={handleCreateAccount}
           />
+
+          <div>
+            <label
+              htmlFor="uploadLimit"
+              className="block text-sm font-medium text-text-secondary mb-2"
+            >
+              Upload limit{' '}
+              <span className="font-normal text-text-tertiary">
+                (optional — cap how many new leads to add)
+              </span>
+            </label>
+            <input
+              id="uploadLimit"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              value={uploadLimit}
+              onChange={(e) => setUploadLimit(e.target.value)}
+              placeholder={`All new leads (up to ${rows.length})`}
+              className="w-full px-4 py-3 bg-bg-secondary border-none rounded-2xl text-sm font-medium text-text-primary transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue focus:bg-white placeholder:text-text-tertiary placeholder:font-normal"
+            />
+          </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

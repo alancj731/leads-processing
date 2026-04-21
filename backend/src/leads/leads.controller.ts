@@ -13,6 +13,7 @@ export class LeadsController {
       dto.accountId ?? null,
       dto.phoneColumn,
       dto.rows,
+      dto.limit ?? null,
     );
   }
 }

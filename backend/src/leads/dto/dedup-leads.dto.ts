@@ -1,4 +1,11 @@
-import { IsString, IsArray, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsUUID,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class DedupLeadsDto {
   @IsString()
@@ -10,6 +17,11 @@ export class DedupLeadsDto {
 
   @IsString()
   phoneColumn!: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  limit?: number | null;
 
   @IsArray()
   rows!: Record<string, string>[];

@@ -4,9 +4,11 @@ export interface DedupResult {
   added: number
   duplicates: number
   invalid: number
+  skipped: number
   newRows: Record<string, string>[]
   duplicateRows: Record<string, string>[]
   invalidRows: Record<string, string>[]
+  skippedRows: Record<string, string>[]
 }
 
 export interface Account {
@@ -20,6 +22,7 @@ export async function deduplicateLeads(payload: {
   accountId: string | null
   phoneColumn: string
   rows: Record<string, string>[]
+  limit: number | null
 }): Promise<DedupResult> {
   const res = await fetch(`${API_BASE}/leads/deduplicate`, {
     method: 'POST',
